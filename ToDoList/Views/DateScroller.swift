@@ -16,7 +16,7 @@ struct DateScroller: View {
         HStack {
             Button(action: moveBack) {
                 Image(systemName: "chevron.left")
-                    .padding(10)
+                    .padding(5)
                     .background(Color.blue.opacity(0.2))
                     .clipShape(Circle())
                     .foregroundColor(.blue)

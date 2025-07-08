@@ -16,6 +16,12 @@ struct TaskListView: View {
     @State private var showingIconPicker = false
     @State private var selectedTaskForIcon: TaskItem?
     
+    public struct Colors {
+        public static let Red = Color.red
+        public static let Blue = Color.blue
+        public static let Aqua = Color(hue: 21, saturation: 23, brightness: 56)
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
