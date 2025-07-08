@@ -17,7 +17,7 @@ struct CheckBoxView: View {
             .foregroundColor(passedTaskItem.isCompleted() ? .green : .secondary)
             .onTapGesture {
                 withAnimation {
-                    guard !passedTaskItem.isCompleted() else {
+                    guard passedTaskItem.isCompleted() else {
                         passedTaskItem.completedDate = Date()
                     return dateHolder.saveContext(viewContext)
                     }

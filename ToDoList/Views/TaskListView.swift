@@ -77,7 +77,7 @@ struct TaskListView: View {
             selectedTaskForIcon = taskItem
             showingIconPicker.toggle()
         }) {
-            Image(systemName: taskItem.icon ?? "circle.fill")
+            Image(systemName: taskItem.icon ?? "paperclip")
                 .font(.system(size: 20))
                 .frame(width: 30, height: 30)
         }
