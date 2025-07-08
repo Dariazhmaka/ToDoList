@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-enum TaskFilter: String
-{
-    static var allFilters: [TaskFilter]
-    {
+enum TaskFilter: String {
+    static var allFilters: [TaskFilter] {
         return [.NonCompleted,.Completed, .All]
     }
     

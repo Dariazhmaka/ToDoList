@@ -23,7 +23,6 @@ struct DateScroller: View {
             }
             
             Spacer()
-            
             Button(action: { showingDatePicker.toggle() }) {
                 VStack(alignment: .center, spacing: 4) {
                     Text(dayOfWeekFormatted())
@@ -76,8 +75,15 @@ struct DateScroller: View {
                 showingDatePicker = false
             }
             
-            Button("Done") {
+            Button(action: {
                 showingDatePicker = false
+            }) {
+                Text("Done")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
             .padding()
         }

@@ -7,64 +7,54 @@
 
 import SwiftUI
 
-struct TaskEditView: View
-{
+struct TaskEditView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var dateHolder: DateHolder
     
-    @State var selectedTaskItem: TaskItem?
-    @State var name: String
-    @State var descript: String
-    @State var dueDate: Date
-    @State var scheduleTime: Bool
+    @State private var selectedTaskItem: TaskItem?
+    @State private var name: String
+    @State private var descript: String
+    @State private var dueDate: Date
+    @State private var scheduleTime: Bool
     
-    init(passedTaskItem: TaskItem?, initialDate: Date)
-    {
-        if let taskItem = passedTaskItem
-        {
+    init(passedTaskItem: TaskItem?, initialDate: Date) {
+        let noData = ""
+        if let taskItem = passedTaskItem {
             _selectedTaskItem = State(initialValue: taskItem)
-            _name = State(initialValue: taskItem.name ?? "")
-            _descript = State(initialValue: taskItem.descript ?? "")
+            _name = State(initialValue: taskItem.name ?? noData)
+            _descript = State(initialValue: taskItem.descript ?? noData)
             _dueDate = State(initialValue: taskItem.dueDate ?? initialDate)
             _scheduleTime = State(initialValue: taskItem.scheduleTime)
         }
-        else
-        {
-            _name = State(initialValue: "")
-            _descript = State(initialValue: "")
+        else {
+            _name = State(initialValue: noData)
+            _descript = State(initialValue: noData)
             _dueDate = State(initialValue: initialDate)
             _scheduleTime = State(initialValue: false)
         }
     }
     
-    var body: some View
-    {
-        Form
-        {
-            Section(header: Text("Task"))
-            {
+    var body: some View {
+        Form {
+            Section(header: Text("Task")) {
                 TextField("Task Name", text: $name)
                 TextField("Descript", text: $descript)
             }
             
-            Section(header: Text("Due Date"))
-            {
+            Section(header: Text("Due Date")) {
                 Toggle("Schedule Time", isOn: $scheduleTime)
                 DatePicker("Due Date", selection: $dueDate, displayedComponents: displayComps())
             }
             
-            if selectedTaskItem?.isCompleted() ?? false
-            {
-                Section(header: Text("Completed"))
-                {
+            if selectedTaskItem?.isCompleted() ?? false {
+                Section(header: Text("Completed")) {
                     Text(selectedTaskItem?.completedDate?.formatted(date: .abbreviated, time: .shortened) ?? "")
                         .foregroundColor(.green)
                 }
             }
             
-            Section()
-            {
+            Section() {
                 Button("Save", action: saveAction)
                     .font(.headline)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -72,17 +62,13 @@ struct TaskEditView: View
         }
     }
     
-    func displayComps() -> DatePickerComponents
-    {
+    func displayComps() -> DatePickerComponents {
         return scheduleTime ? [.hourAndMinute, .date] : [.date]
     }
     
-    func saveAction()
-    {
-        withAnimation
-        {
-            if selectedTaskItem == nil
-            {
+    func saveAction() {
+        withAnimation {
+            if selectedTaskItem == nil {
                 selectedTaskItem = TaskItem(context: viewContext)
             }
             
@@ -97,8 +83,7 @@ struct TaskEditView: View
     }
 }
 
-struct TaskEditView_Previews: PreviewProvider
-{
+struct TaskEditView_Previews: PreviewProvider {
     static var previews: some View {
         TaskEditView(passedTaskItem: TaskItem(), initialDate: Date())
     }

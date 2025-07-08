@@ -22,7 +22,6 @@ struct TaskListView: View {
                 DateScroller()
                     .padding()
                     .environmentObject(dateHolder)
-                
                 ZStack {
                     taskList
                     FloatingButton()
@@ -57,10 +56,8 @@ struct TaskListView: View {
         NavigationLink(
             destination: TaskEditView(
                 passedTaskItem: taskItem,
-                initialDate: taskItem.dueDate!
-            )
-            .environmentObject(dateHolder)
-        ) {
+                initialDate: taskItem.dueDate!)
+            .environmentObject(dateHolder)) {
             HStack {
                 iconButton(for: taskItem)
                 TaskCell(passedTaskItem: taskItem)
@@ -107,10 +104,8 @@ struct TaskListView: View {
             return dateHolder.taskItems.filter { $0.isCompleted() }
         case .NonCompleted:
             return dateHolder.taskItems.filter { !$0.isCompleted() }
-            
         default:
             return dateHolder.taskItems
-        
         }
     }
     
@@ -132,8 +127,7 @@ struct IconPickerView: View {
         "bookmark.fill", "bell.fill", "tag.fill", "bolt.fill",
         "hourglass", "lightbulb.fill", "pencil.circle", "trash.fill",
         "folder.fill", "tray.fill", "calendar", "alarm.fill",
-        "cart.fill", "gift.fill", "creditcard.fill", "house.fill"
-    ]
+        "cart.fill", "gift.fill", "creditcard.fill", "house.fill"]
     
     var body: some View {
         NavigationView {
