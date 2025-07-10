@@ -2,50 +2,40 @@
 //  DateHolder.swift
 //  ToDoList
 //
-//  Created by Дарья on 08.07.2025.
+//  Created by Дарья on 07.07.2025.
 //
 
 import SwiftUI
 import CoreData
 
-class DateHolder: ObservableObject
-
-{
+class DateHolder: ObservableObject {
     @Published var date = Date()
     @Published var taskItems: [TaskItem] = []
     
     let calendar: Calendar = Calendar.current
     
-    func moveDate(_ days: Int,_ context: NSManagedObjectContext)
-    {
+    func moveDate(_ days: Int,_ context: NSManagedObjectContext) {
         date = calendar.date(byAdding: .day, value: days, to: date)!
         refreshTaskItems(context)
     }
         
-    init(_ context: NSManagedObjectContext)
-    {
+    init(_ context: NSManagedObjectContext) {
         refreshTaskItems(context)
     }
     
-    func refreshTaskItems(_ context: NSManagedObjectContext)
-    {
+    func refreshTaskItems(_ context: NSManagedObjectContext) {
         taskItems = fetchTaskItems(context)
     }
     
-    func fetchTaskItems(_ context: NSManagedObjectContext) -> [TaskItem]
-    {
-        do
-        {
+    func fetchTaskItems(_ context: NSManagedObjectContext) -> [TaskItem] {
+        do {
             return try context.fetch(dailyTasksFetch()) as [TaskItem]
-        }
-        catch let error
-        {
+        } catch let error {
             fatalError("Unresolved error \(error)")
         }
     }
     
-    func dailyTasksFetch() -> NSFetchRequest<TaskItem>
-    {
+    func dailyTasksFetch() -> NSFetchRequest<TaskItem> {
         let request = TaskItem.fetchRequest()
         
         request.sortDescriptors = sortOrder()
@@ -53,8 +43,7 @@ class DateHolder: ObservableObject
         return request
     }
     
-    private func sortOrder() -> [NSSortDescriptor]
-    {
+    private func sortOrder() -> [NSSortDescriptor] {
         let completedDateSort = NSSortDescriptor(keyPath: \TaskItem.completedDate, ascending: true)
         let timeSort = NSSortDescriptor(keyPath: \TaskItem.scheduleTime, ascending: true)
         let dueDateSort = NSSortDescriptor(keyPath: \TaskItem.dueDate, ascending: true)
@@ -62,15 +51,13 @@ class DateHolder: ObservableObject
         return [completedDateSort, timeSort, dueDateSort]
     }
     
-    private func predicate() -> NSPredicate
-    {
+    private func predicate() -> NSPredicate {
         let start = calendar.startOfDay(for: date)
         let end = calendar.date(byAdding: .day, value: 1, to: start)
         return NSPredicate(format: "dueDate >= %@ AND dueDate < %@", start as NSDate, end! as NSDate)
     }
     
-    func saveContext(_ context: NSManagedObjectContext)
-    {
+    func saveContext(_ context: NSManagedObjectContext) {
         do {
             try context.save()
             refreshTaskItems(context)

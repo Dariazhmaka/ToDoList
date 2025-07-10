@@ -5,8 +5,8 @@
 //  Created by Дарья on 07.07.2025.
 //
 
+import SwiftUICore
 import SwiftUI
-import CoreData
 
 struct TaskListView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -16,41 +16,88 @@ struct TaskListView: View {
     @State private var showingIconPicker = false
     @State private var selectedTaskForIcon: TaskItem?
     
+    private let accentColor = Color.blue
+    private let backgroundColor = Color(.systemGroupedBackground)
+    
     var body: some View {
         NavigationView {
-            VStack {
-                DateScroller()
-                    .padding()
-                    .environmentObject(dateHolder)
+            ZStack {
+                backgroundColor.edgesIgnoringSafeArea(.all)
                 
-                ZStack {
-                    taskList
-                    FloatingButton()
-                        .environmentObject(dateHolder)
+                VStack(spacing: 0) {
+                    DateScroller()
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .background(Color(.systemBackground))
+                    
+                    if filteredTaskItems().isEmpty {
+                        emptyStateView
+                    } else {
+                        taskList
+                    }
+                    
+                    Spacer()
                 }
+                
+                FloatingButton()
+                    .environmentObject(dateHolder)
             }
             .navigationTitle("To Do List")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    filterPicker
+                }
+            }
             .sheet(isPresented: $showingIconPicker) {
                 if let task = selectedTaskForIcon {
                     iconPickerView(for: task)
-   
                 }
             }
         }
+        .accentColor(accentColor)
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checklist")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
+            
+            Text("No tasks for this day")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            if selectedFilter != .All {
+                Button(action: {
+                    selectedFilter = .All
+                }) {
+                    Text("Show all tasks")
+                        .foregroundColor(accentColor)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
     
     private var taskList: some View {
         List {
             ForEach(filteredTaskItems()) { taskItem in
                 taskRow(for: taskItem)
+                    .listRowBackground(Color(.systemBackground))
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            deleteTask(taskItem)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
             }
             .onDelete(perform: deleteItems)
         }
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                filterPicker
-            }
-        }
+        .listStyle(.plain)
+        .background(backgroundColor)
     }
     
     private func taskRow(for taskItem: TaskItem) -> some View {
@@ -61,20 +108,55 @@ struct TaskListView: View {
             )
             .environmentObject(dateHolder)
         ) {
-            HStack {
+            HStack(spacing: 12) {
                 iconButton(for: taskItem)
-                TaskCell(passedTaskItem: taskItem)
-                    .environmentObject(dateHolder)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(taskItem.name ?? "")
+                        .font(.headline)
+                        .strikethrough(taskItem.isCompleted(), color: .gray)
+                        .foregroundColor(taskItem.isCompleted() ? .secondary : .primary)
+                    
+                    if let desc = taskItem.descript, !desc.isEmpty {
+                        Text(desc)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                
+                Spacer()
+                
+                if !taskItem.isCompleted() && taskItem.scheduleTime {
+                    Text(taskItem.dueDateTimeOnly())
+                        .font(.subheadline)
+                        .foregroundColor(taskItem.overDueColor())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(taskItem.overDueColor().opacity(0.1))
+                        )
+                }
             }
+            .padding(.vertical, 8)
         }
     }
     
+    private func deleteTask(_ task: TaskItem) {
+        withAnimation {
+            viewContext.delete(task)
+            dateHolder.saveContext(viewContext)
+        }
+    }
+    
+
     private func iconButton(for taskItem: TaskItem) -> some View {
         Button(action: {
             selectedTaskForIcon = taskItem
             showingIconPicker.toggle()
         }) {
-            Image(systemName: taskItem.icon ?? "circle.fill")
+            Image(systemName: taskItem.icon ?? "paperclip")
                 .font(.system(size: 20))
                 .frame(width: 30, height: 30)
         }
@@ -107,10 +189,8 @@ struct TaskListView: View {
             return dateHolder.taskItems.filter { $0.isCompleted() }
         case .NonCompleted:
             return dateHolder.taskItems.filter { !$0.isCompleted() }
-            
         default:
             return dateHolder.taskItems
-        
         }
     }
     

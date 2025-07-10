@@ -64,8 +64,6 @@
 				47366CF52E1C671900EC274C /* ToDoList */,
 			);
 			name = ToDoList;
-			packageProductDependencies = (
-			);
 			productName = ToDoList;
 			productReference = 47366CF32E1C671900EC274C /* ToDoList.app */;
 			productType = "com.apple.product-type.application";
