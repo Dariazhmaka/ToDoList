@@ -37,27 +37,71 @@ struct TaskEditView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("Task")) {
+            Section(header: Text("Task Details").font(.headline)) {
                 TextField("Task Name", text: $name)
-                TextField("Descript", text: $descript)
+                    .font(.body)
+                TextField("Description", text: $descript)
+                    .font(.body)
             }
             
-            Section(header: Text("Due Date")) {
-                Toggle("Schedule Time", isOn: $scheduleTime)
-                DatePicker("Due Date", selection: $dueDate, displayedComponents: displayComps())
+            Section(header: Text("Due Date").font(.headline)) {
+                Toggle("Include Time", isOn: $scheduleTime)
+                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+                DatePicker(
+                    "Due Date",
+                    selection: $dueDate,
+                    displayedComponents: displayComps()
+                )
+                .datePickerStyle(.graphical)
             }
             
-            if selectedTaskItem?.isCompleted() ?? false {
-                Section(header: Text("Completed")) {
-                    Text(selectedTaskItem?.completedDate?.formatted(date: .abbreviated, time: .shortened) ?? "")
-                        .foregroundColor(.green)
+            if selectedTaskItem != nil {
+                Section {
+                    Button(action: toggleCompletion) {
+                        HStack {
+                            Spacer()
+                            Text(selectedTaskItem?.isCompleted() ?? false ? "Mark as Incomplete" : "Mark as Complete")
+                                .font(.headline)
+                                .bold()
+                            Spacer()
+                        }
+                    }
+                    .tint(selectedTaskItem?.isCompleted() ?? false ? .orange : .green)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                 }
+                .listRowBackground(Color.clear)
             }
             
-            Section() {
-                Button("Save", action: saveAction)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
+            Section {
+                Button(action: saveAction) {
+                    HStack {
+                        Spacer()
+                        Text("Save Task")
+                            .font(.headline)
+                            .bold()
+                        Spacer()
+                    }
+                }
+                .tint(.blue)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            }
+            .listRowBackground(Color.clear)
+        }
+        .navigationTitle(selectedTaskItem == nil ? "New Task" : "Edit Task")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private func toggleCompletion() {
+        withAnimation {
+            if let task = selectedTaskItem {
+                if task.isCompleted() {
+                    task.completedDate = nil
+                } else {
+                    task.completedDate = Date()
+                }
+                dateHolder.saveContext(viewContext)
             }
         }
     }
@@ -74,6 +118,7 @@ struct TaskEditView: View {
             
             selectedTaskItem?.created = Date()
             selectedTaskItem?.name = name
+            selectedTaskItem?.descript = descript
             selectedTaskItem?.dueDate = dueDate
             selectedTaskItem?.scheduleTime = scheduleTime
             
@@ -81,10 +126,10 @@ struct TaskEditView: View {
             self.presentationMode.wrappedValue.dismiss()
         }
     }
-}
-
-struct TaskEditView_Previews: PreviewProvider {
-    static var previews: some View {
-        TaskEditView(passedTaskItem: TaskItem(), initialDate: Date())
+    
+    struct TaskEditView_Previews: PreviewProvider {
+        static var previews: some View {
+            TaskEditView(passedTaskItem: TaskItem(), initialDate: Date())
+        }
     }
 }

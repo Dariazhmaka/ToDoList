@@ -30,8 +30,7 @@ class DateHolder: ObservableObject {
     func fetchTaskItems(_ context: NSManagedObjectContext) -> [TaskItem] {
         do {
             return try context.fetch(dailyTasksFetch()) as [TaskItem]
-        }
-        catch let error {
+        } catch let error {
             fatalError("Unresolved error \(error)")
         }
     }
@@ -62,8 +61,7 @@ class DateHolder: ObservableObject {
         do {
             try context.save()
             refreshTaskItems(context)
-        }
-        catch {
+        } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }

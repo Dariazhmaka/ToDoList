@@ -13,18 +13,26 @@ struct CheckBoxView: View {
     @ObservedObject var passedTaskItem: TaskItem
     
     var body: some View {
-        Image(systemName: passedTaskItem.isCompleted() ? "checkmark.circle.fill" : "circle")
-            .foregroundColor(passedTaskItem.isCompleted() ? .green : .secondary)
-            .onTapGesture {
-                withAnimation {
-                    guard passedTaskItem.isCompleted() else {
-                        passedTaskItem.completedDate = Date()
-                    return dateHolder.saveContext(viewContext)
-                    }
-                }
+            Button(action: toggleCompletion) {
+                Image(systemName: passedTaskItem.isCompleted() ? "checkmark.circle.fill" : "circle")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(passedTaskItem.isCompleted() ? .green : .gray)
             }
+            .buttonStyle(PlainButtonStyle())
+        }
+        
+        private func toggleCompletion() {
+            withAnimation(.spring()) {
+                if passedTaskItem.isCompleted() {
+                    passedTaskItem.completedDate = nil
+                } else {
+                    passedTaskItem.completedDate = Date()
+                }
+                dateHolder.saveContext(viewContext)
+            }
+        }
     }
-}
 
 struct CheckBoxView_Previews: PreviewProvider {
     static var previews: some View {
